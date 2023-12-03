@@ -19,8 +19,8 @@ class PCQ:
         self.storage = []
         self.storageLock = threading.Lock(storage)
         self.size = 30        
-        self.emptyCells = Semaphore(self.size)
-        self.fullCells - Semaphore(0)
+        self.emptyCells = threading.Semaphore(self.size)
+        self.fullCells = threading.Semaphore(0)
 
     def insert(self, item):
         self.emptyCells.acquire()
