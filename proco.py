@@ -62,6 +62,9 @@ def extractFrames(fileName, queue, maxFramesToLoad=9999):
         print(f'Reading frame {count} {success}')
         count += 1
 
+    #Do one more push into the queue on failure to signal to consumer we are done
+    queue.insert(image)
+    
     print('Frame extraction complete')
 
 def displayFrames(queue):
@@ -69,10 +72,10 @@ def displayFrames(queue):
     count = 0
 
     #find logic to keep function going for while loop
-    while(true):
+    while(frame := queue.remove() != None):
 
         #get the next frame
-        frame = queue.remove()
+        #frame = queue.remove()
 
         print(f'Displaying frame {count}')
 
