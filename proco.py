@@ -67,6 +67,26 @@ def extractFrames(fileName, queue, maxFramesToLoad=9999):
     
     print('Frame extraction complete')
 
+
+def grayFrames(readQueue, writeQueue):
+    count = 0
+    colorFrame = readQueue.remove()
+
+    while colorFrame is not None:
+        grayFrame = cv2.cvtColor(colorFrame, cv2.COLOR_BGR2GRAY)
+
+        print(f'Graying frame {count}')
+        writeQueue.insert(grayFrame)
+
+        count += 1
+
+        colorFrame = readQueue.remove()
+
+    #when loop ends, load None into queue to signal EoF for consumer
+    print("Finished Graying Frames")
+    writeQueue.insert(None)
+
+    
 def displayFrames(queue):
     #initialize frame count
     count = 0
@@ -97,10 +117,13 @@ def displayFrames(queue):
 filename = 'clip.mp4'
 
 #producer consumer queue
-proco = PCQ()
+progray = PCQ()
+grayco = PCQ()
 
-producer = threading.Thread(target = extractFrames, args = [filename, proco, 144])
-consumer = threading.Thread(target = displayFrames, args = [proco])
+producer = threading.Thread(target = extractFrames, args = [filename, progray, 1000])
+gray = threading.Thread(target = grayFrames, args = [progray, grayco])
+consumer = threading.Thread(target = displayFrames, args = [grayco])
 
 producer.start()
+gray.start()
 consumer.start()
