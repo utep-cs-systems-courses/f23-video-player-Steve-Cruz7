@@ -17,7 +17,7 @@ import base64
 class PCQ:
     def __init__(self):
         self.storage = []
-        self.storageLock = threading.Lock(storage)
+        self.storageLock = threading.Lock()
         self.size = 30        
         self.emptyCells = threading.Semaphore(self.size)
         self.fullCells = threading.Semaphore(0)
@@ -63,20 +63,20 @@ def extractFrames(fileName, queue, maxFramesToLoad=9999):
         count += 1
 
     #Do one more push into the queue on failure to signal to consumer we are done
-    queue.insert(image)
+    queue.insert(None)
     
     print('Frame extraction complete')
 
 def displayFrames(queue):
     #initialize frame count
     count = 0
-
+    frame = queue.remove()
     #find logic to keep function going for while loop
-    while(frame := queue.remove() != None):
+    while(frame is not None):
 
         #get the next frame
-        #frame = queue.remove()
-
+        
+        
         print(f'Displaying frame {count}')
 
         #display the image in a window called "video" and wait 42ms
@@ -88,6 +88,7 @@ def displayFrames(queue):
             break
 
         count += 1
+        frame = queue.remove()
 
     print('Finished displaying all frames')
     #cleanup the windows
@@ -98,7 +99,7 @@ filename = 'clip.mp4'
 #producer consumer queue
 proco = PCQ()
 
-producer = threading.Thread(target = extractFrames, args = [filename, proco, 72])
+producer = threading.Thread(target = extractFrames, args = [filename, proco, 144])
 consumer = threading.Thread(target = displayFrames, args = [proco])
 
 producer.start()
